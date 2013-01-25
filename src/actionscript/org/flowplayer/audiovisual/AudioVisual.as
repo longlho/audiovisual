@@ -50,11 +50,12 @@ package org.flowplayer.audiovisual {
             log.debug("onLoad() AudioVisual");
             _player = player;
             sp = new SoundProcessor();
-            timer = new Timer(200);  
+            timer = new Timer(50);  
             timer.addEventListener(TimerEvent.TIMER, calculate);  
             
             
             player.playlist.onStart(show);
+            player.playlist.onResume(show);
             player.playlist.onStop(hide);
             player.playlist.onPause(hide);
             /*
@@ -68,7 +69,7 @@ package org.flowplayer.audiovisual {
         }
 
         private function calculate(e:TimerEvent):void {
-            _model.dispatch(PluginEventType.PLUGIN_EVENT, "onSound", sp.getSoundSpectrum(true));
+            _model.dispatch(PluginEventType.PLUGIN_EVENT, "onSound", sp.getSoundSpectrum(false));
         }
 
 
