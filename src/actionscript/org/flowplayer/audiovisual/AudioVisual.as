@@ -30,20 +30,15 @@ package org.flowplayer.audiovisual {
         
         private var _model:PluginModel;
         private var _player:Flowplayer;
-        private var _interval:uint;
         private var timer:Timer;
-        private var _soundArray:Array;
         private var sp:SoundProcessor;
         private var log:Log = new Log(this);
 
         
-
         public function onConfig(model:PluginModel):void {
             log.debug('onConfig audiovisual');
             _model = model;
-            /*
-            _config = new PropertyBinder(new Config(), null).copyProperties(model.config) as Config;
-            */
+            
         }
 
         public function onLoad(player:Flowplayer):void {
@@ -53,34 +48,29 @@ package org.flowplayer.audiovisual {
             timer = new Timer(50);  
             timer.addEventListener(TimerEvent.TIMER, calculate);  
             
-            
-            player.playlist.onStart(show);
-            player.playlist.onResume(show);
-            player.playlist.onStop(hide);
-            player.playlist.onPause(hide);
-            /*
-            player.playlist.onResume(show);
-            player.playlist.onFinish(hide);
-            
-            player.playlist.onPause(hide);
-            */
+            player.playlist.onStart(startTimer);
+            player.playlist.onResume(startTimer);
+            player.playlist.onStop(stopTimer);
+            player.playlist.onPause(stopTimer);
             _model.dispatchOnLoad();
-            
         }
 
         private function calculate(e:TimerEvent):void {
-            _model.dispatch(PluginEventType.PLUGIN_EVENT, "onSound", sp.getSoundSpectrum(false));
+            //False since we don't want fourier transformation
+            var soundArray:Array = sp.getSoundSpectrum(false);
+            if (soundArray.length) {
+                _model.dispatch(PluginEventType.PLUGIN_EVENT, "onSound", soundArray);
+            }
         }
-
-
-        private function show(event:ClipEvent = null):void {
-            log.debug("show()");
+        
+        private function startTimer(event:ClipEvent = null):void {
             timer.start(); 
+            log.debug("Timer started");
         }
 
-        private function hide(event:ClipEvent):void {
-            log.debug("hide()");
+        private function stopTimer(event:ClipEvent):void {
             timer.stop();
+            log.debug("Timer stopped");
         }
 
         public function getDefaultConfig():Object {
