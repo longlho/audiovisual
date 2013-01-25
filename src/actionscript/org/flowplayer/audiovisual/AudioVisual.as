@@ -68,7 +68,7 @@ package org.flowplayer.audiovisual {
         }
 
         private function calculate(e:TimerEvent):void {
-            _model.dispatch(PluginEventType.PLUGIN_EVENT, "onSound", sp.getSoundSpectrum(true));
+            _model.dispatch(PluginEventType.PLUGIN_EVENT, "onSound", sp.getSoundSpectrum(false));
         }
 
 
