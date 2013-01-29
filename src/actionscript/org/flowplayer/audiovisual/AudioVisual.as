@@ -12,9 +12,7 @@ package org.flowplayer.audiovisual {
 
     import flash.utils.*;
     import flash.events.*;
-    
-    import org.flowplayer.util.Log;
-    
+
     import org.flowplayer.model.ClipEvent;
     import org.flowplayer.model.PluginEvent;
     import org.flowplayer.model.PluginEventType;
@@ -24,30 +22,32 @@ package org.flowplayer.audiovisual {
     import org.flowplayer.model.Plugin;
     import org.flowplayer.model.PluginModel;
     import org.flowplayer.util.PropertyBinder;
+    import org.flowplayer.util.Log;
     import org.flowplayer.view.Flowplayer;
 
     public class AudioVisual implements Plugin {
-        
+
         private var _model:PluginModel;
         private var _player:Flowplayer;
+        private var _config:Object;
         private var timer:Timer;
         private var sp:SoundProcessor;
         private var log:Log = new Log(this);
 
-        
+
         public function onConfig(model:PluginModel):void {
             log.debug('onConfig audiovisual');
             _model = model;
-            
+            _config = model.config;
         }
 
         public function onLoad(player:Flowplayer):void {
             log.debug("onLoad() AudioVisual");
             _player = player;
             sp = new SoundProcessor();
-            timer = new Timer(50);  
-            timer.addEventListener(TimerEvent.TIMER, calculate);  
-            
+            timer = new Timer(_config.freq || 50);
+            timer.addEventListener(TimerEvent.TIMER, calculate);
+
             player.playlist.onStart(startTimer);
             player.playlist.onResume(startTimer);
             player.playlist.onStop(stopTimer);
@@ -57,14 +57,14 @@ package org.flowplayer.audiovisual {
 
         private function calculate(e:TimerEvent):void {
             //False since we don't want fourier transformation
-            var soundArray:Array = sp.getSoundSpectrum(false);
+            var soundArray:Array = sp.getSoundSpectrum(_config.fft || false);
             if (soundArray.length) {
                 _model.dispatch(PluginEventType.PLUGIN_EVENT, "onSound", soundArray);
             }
         }
-        
+
         private function startTimer(event:ClipEvent = null):void {
-            timer.start(); 
+            timer.start();
             log.debug("Timer started");
         }
 
